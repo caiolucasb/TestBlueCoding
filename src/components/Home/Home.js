@@ -1,48 +1,42 @@
-import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
-import homeLogo from "../../Assets/home-main.svg";
-import Particle from "../Particle";
-import Home2 from "./Home2";
-import Type from "./Type";
+import React, { useEffect, useState } from "react";
+import { REACT_APP_GIPHY_API_KEY } from "../../utils/envs.js";
+import { giphyApi } from "../../Providers/api";
+import { Carousel } from 'react-responsive-carousel';
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 function Home() {
+  const [ giphys, setGiphys ] = useState();
+
+  useEffect(() => {
+    async function getGiphys(){
+      try{
+        const giphys = await giphyApi.get(`/v1/gifs/trending?api_key=${REACT_APP_GIPHY_API_KEY}`)
+        setGiphys(giphys.data.data)
+        console.log(giphys)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getGiphys();
+  }, [])
+
   return (
-    <section>
-      <Container fluid className="home-section" id="home">
-        <Particle />
-        <Container className="home-content">
-          <Row>
-            <Col md={7} className="home-header">
-              <h1 style={{ paddingBottom: 15 }} className="heading">
-                Hi There!{" "}
-                <span className="wave" role="img" aria-labelledby="wave">
-                  👋🏻
-                </span>
-              </h1>
-
-              <h1 className="heading-name">
-                I'M
-                <strong className="main-name"> SOUMYAJIT BEHERA</strong>
-              </h1>
-
-              <div style={{ padding: 50, textAlign: "left" }}>
-                <Type />
-              </div>
-            </Col>
-
-            <Col md={5} style={{ paddingBottom: 20 }}>
-              <img
-                src={homeLogo}
-                alt="home pic"
-                className="img-fluid"
-                style={{ maxHeight: "450px" }}
-              />
-            </Col>
-          </Row>
-        </Container>
-      </Container>
-      <Home2 />
-    </section>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      alignContent: 'center',
+    }}>
+      { giphys && 
+        <Carousel>
+          {giphys?.map((gif) =>
+          <div>
+            <img src={gif.images.original.url} alt="gif"/>
+          </div>
+          )}
+        </Carousel>
+      }
+    </div>
   );
 }
 
